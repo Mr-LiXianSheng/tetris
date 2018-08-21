@@ -2,6 +2,8 @@
 
 > A Vue.js project
 
+> a multiplayer tetris game
+
 ## Build Setup
 
 ``` bash
