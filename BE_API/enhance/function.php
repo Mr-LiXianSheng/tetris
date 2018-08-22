@@ -2,10 +2,10 @@
 /**
  * Query DBA data
  * 
- * @param  $sql
- *         String
+ * @param  String $sql
+ *         
  * 
- * @global $db
+ * @global Object $db
  * 
  * @return {status, num, result}
  * 				 {boolean, int, array}
