@@ -12,7 +12,7 @@ const ENV = 'dev';
 
 
 
-const DEV_INDEX_URL = 'http://localhost:3030';
+const DEV_INDEX_URL = 'http://localhost:5678';
 
 const OLE_INDEX_URL = 'http://www.jiaminghi.com';
 
@@ -20,17 +20,17 @@ const SPA_INDEX_URL = ENV === 'dev' ? DEV_INDEX_URL : OLE_INDEX_URL;
 
 
 
-const DBA_NAME = 'halo';
+const DBA_NAME = 'tetris';
 
 const DBA_HOST = 'localhost';
 
 const DEV_DBA_USER = 'root';
 
-const OLE_DBA_USER = 'halo';
+const OLE_DBA_USER = 'tetris';
 
 const DEV_DBA_PASS = 'jiaming';
 
-const DEV_OLE_PASS = 'jiaminghalo';
+const DEV_OLE_PASS = 'jiamingTetris';
 
 const DBA_USER = ENV === 'dev' ? DEV_DBA_USER : OLE_DBA_USER;
 

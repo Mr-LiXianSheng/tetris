@@ -1,5 +1,55 @@
 <?php
 /**
+ * Query DBA data
+ * 
+ * @param  $sql
+ *         String
+ * 
+ * @global $db
+ * 
+ * @return {status, num, result}
+ * 				 {boolean, int, array}
+ * 			   {query result status, result num, result}
+ */
+function query ($sql) {
+	Global $db;
+
+	$result = $db->query($sql);
+
+	$data = new StdClass();
+
+	// init return data attribute
+	$data->status = false;
+	$data->num = 0;
+	$data->result = [];
+
+	// no sql
+	if (!$sql) return $data;
+
+	$result = $db->query($sql);
+
+	// query fail. for example sql is wrong
+	if (!$result) return $data;
+
+	// query success
+	$data->status = true;
+
+	// set query result num
+	$num = $result->num_rows;
+	$data->num = $num;
+
+	// if result num equal zero, return directly
+	if ($num === 0) return $data;
+
+	// push result to data->result, change result data type to Array
+	for ($i = 0; $i < $num; $i++) {
+		array_push($data->result, $result->fetch_assoc());
+	}
+
+	return $data;
+}
+
+/**
  * Throw Request Data & exit
  * 
  * @global $DATA
