@@ -15,7 +15,7 @@ export default {
   created () {
     const { $http: { get } } = this
 
-    get('/api/test.php').then(res => {
+    get('/api').then(res => {
       console.error(res)
     })
   }
