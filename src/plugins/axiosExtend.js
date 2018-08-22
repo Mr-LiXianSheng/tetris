@@ -32,9 +32,9 @@ function interception (fn, methods) {
       args.shift()
 
       // POST Request
-    } else if  (methods === 'post' && argsLen > 2 && args[argsLen - 1] === true) {
+    } else if (methods === 'post' && argsLen > 2 && args[argsLen - 1] === true) {
       const requerParams = new FormData()
-      
+
       Object.entries(args[1]).forEach(([key, value]) => {
         requerParams.append(key, value)
       })

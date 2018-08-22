@@ -4,11 +4,14 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 
-// 引入Element-UI
+// Element-UI
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
-// 全局样式
+// axiosExtend
+import './plugins/axiosExtend'
+
+// style
 import './assets/style/common.less'
 
 Vue.use(ElementUI)
