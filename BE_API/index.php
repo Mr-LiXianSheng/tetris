@@ -1,5 +1,7 @@
 <?php
-require_once('./config/index.php');
+require('./config/index.php');
 
-require_once('./enhance/function.php');
+require('./enhance/function.php');
+
+require('./route/index.php');
 ?>

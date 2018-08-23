@@ -40,9 +40,5 @@ $db = new mysqli(DBA_HOST,DBA_USER,DBA_PASS,DBA_NAME);
 
 
 
-const FILE_ROOT = 'BE_API';
-
-
-
 date_default_timezone_set('Asia/Shanghai');
 ?>

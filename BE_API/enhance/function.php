@@ -93,16 +93,17 @@ function get_date_dif_seconds () {
 /**
  * Get random number
  * 
- * @param int n The number's length you want
+ * @param int   The number's length you want
  * 
- * @return int
+ * @return int  result you want
  */
 function random_num ($n) {
     for ($num = '', $i = 0; $i < $n; $i++) {
 
 				$num .= rand(0,9);
 
-    }
+		}
+
     return (int)$num;
 }
 
@@ -111,7 +112,7 @@ function random_num ($n) {
  * 
  * @param string
  * 
- * @return string Length === 32
+ * @return string  Length === 32
  */
 function uniqtag ($str) {
 
