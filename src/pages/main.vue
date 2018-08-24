@@ -13,9 +13,9 @@ export default {
   methods: {
   },
   created () {
-    const { $http: { get } } = this
+    const { $http: { post } } = this
 
-    get('/api/aa/bb').then(res => {
+    post('/api/registration/register').then(res => {
       console.error(res)
     })
   }

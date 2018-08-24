@@ -36,9 +36,27 @@ const DBA_USER = ENV === 'dev' ? DEV_DBA_USER : OLE_DBA_USER;
 
 const DBA_PASS = ENV === 'dev' ? DEV_DBA_PASS : OLE_DBA_PASS;
 
-$db = new mysqli(DBA_HOST,DBA_USER,DBA_PASS,DBA_NAME);
+
+
+const FILE_ROOT = './';
+
+
+
+$DB = new mysqli(DBA_HOST, DBA_USER, DBA_PASS, DBA_NAME);
 
 
 
 date_default_timezone_set('Asia/Shanghai');
+
+
+
+$RESPONSE = new StdClass();
+
+
+
+// INIT RESPONSE OBJECT
+$RESPONSE->code = 'error';
+$RESPONSE->msg  = 'request fail';
+$RESPONSE->data = '';
+$RESPONSE->page = '';
 ?>

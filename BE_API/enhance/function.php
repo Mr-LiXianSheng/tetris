@@ -1,5 +1,38 @@
 <?php
 /**
+ * Throw Request Data & exit
+ * 
+ * @global $DATA
+ * 
+ * @return JSONSTRING
+ */
+function throwRequestResponse () {
+	Global $RESPONSE;
+	Global $DB;
+
+	// Close database
+	$DB->close();
+
+	// Exit & output data
+	exit(json_encode($RESPONSE));
+}
+
+/**
+ * check Request method get | post
+ * 
+ * @param String get | post
+ */
+function checkRequestMethod ($type = false) {
+	GLOBAL $RESPONSE;
+
+	if (!$type) return;
+
+	if (strtolower($type) === strtolower($_SERVER['REQUEST_METHOD'])) return;
+
+	require(FILE_ROOT . 'error/requestMethodError.php');
+}
+
+/**
  * Query DBA data
  * 
  * @param  String $sql
@@ -50,24 +83,6 @@ function query ($sql) {
 }
 
 /**
- * Throw Request Data & exit
- * 
- * @global $DATA
- * 
- * @return JSONSTRING
- */
-function throw_request_data () {
-	Global $data;
-	Global $db;
-
-	// Close database
-	$db->close();
-
-	// Exit & output data
-	exit(json_encode($data));
-}
-
-/**
  * Get two times minus of seconds
  *
  * Return value > 0 IF the reduced time more than the now time
@@ -78,7 +93,7 @@ function throw_request_data () {
  * 
  * @return int minus of seconds
  */
-function get_date_dif_seconds () {
+function getDateDiffSeconds () {
 	$paramNum = func_num_args();
 
 	if($paramNum === 0)return 0;
@@ -97,7 +112,7 @@ function get_date_dif_seconds () {
  * 
  * @return int  result you want
  */
-function random_num ($n) {
+function randomNum ($n) {
     for ($num = '', $i = 0; $i < $n; $i++) {
 
 				$num .= rand(0,9);
@@ -125,7 +140,7 @@ function uniqtag ($str) {
  * 
  * @return string
  */
-function getip() {
+function getIp() {
 	$ip = $_SERVER["REMOTE_ADDR"];
 
 	if($ip=='::1')$ip = '127.0.0.1';
@@ -140,7 +155,7 @@ function getip() {
  * 
  * @return string date for example 1999-09-09
  */
-function tranday ($date) {
+function tranDay ($date) {
 
 	return substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6, 2);
 
@@ -153,7 +168,7 @@ function tranday ($date) {
  * 
  * @return time for example 19:19:19
  */
-function trantime ($time) {
+function tranTime ($time) {
 
 	return substr($time, 0, 2) . ':' . substr($time, 2, 2) . ':' . substr($time, 4, 2);
 
@@ -168,7 +183,7 @@ function trantime ($time) {
  * 
  * @return object | array
  */
-function getjson ($url, $assoc = false) {
+function getJson ($url, $assoc = false) {
 
 	return json_decode(file_get_contents($url), $assoc);
 
@@ -183,7 +198,7 @@ function getjson ($url, $assoc = false) {
  * 
  * @return boolean
  */
-function setjson ($url, $data) {
+function setJson ($url, $data) {
 
 	return file_put_contents($url, $data);
 

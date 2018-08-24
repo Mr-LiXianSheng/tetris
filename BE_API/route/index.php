@@ -3,16 +3,16 @@
  * Router Form
  */
 
-$requestPath = explode('/',$_SERVER['PATH_INFO']);
+$REQUEST_PATH = explode('/',$_SERVER['PATH_INFO']);
 
 // Splice useless params
-array_splice($requestPath, 0, 1);
+array_splice($REQUEST_PATH, 0, 1);
 
-@$module = $requestPath[0];
+@$MODULE = $REQUEST_PATH[0];
 
-@$function = $requestPath[1];
+@$COMMAND = $REQUEST_PATH[1];
 
-@$params = array_slice($requestPath, 2);
+@$PARAMS = array_slice($REQUEST_PATH, 2);
 
 
 
@@ -20,9 +20,17 @@ session_start();
 
 
 
-switch ($module) {
+const ROUTE_FILE_ROOT = FILE_ROOT . 'api/';
+
+
+// MODULE ROUTER
+switch ($MODULE) {
+
+  case 'registration': require(ROUTE_FILE_ROOT. 'registration/index.php');
+    break;
+
+  default: require(FILE_ROOT . 'error/requestPathError.php');
+    break;
 
 }
-
-
 ?>
