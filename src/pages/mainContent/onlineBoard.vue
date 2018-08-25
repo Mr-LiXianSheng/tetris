@@ -1,8 +1,17 @@
 <template>
   <div id="online-board">
+
     <div class="top-title">
       online-board
     </div>
+
+    <!-- search-container -->
+    <div class="search">
+      <el-input placeholder="请输入用户名" v-model="userName">
+        <el-button slot="append" icon="el-icon-search"></el-button>
+      </el-input>
+    </div>
+
   </div>
 </template>
 
@@ -10,7 +19,9 @@
 export default {
   name: 'OnlineBoard',
   data () {
-    return {}
+    return {
+      userName: ''
+    }
   }
 }
 </script>

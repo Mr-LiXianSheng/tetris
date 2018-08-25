@@ -1,8 +1,10 @@
 <template>
   <div id="login-board">
+
     <div class="top-title">
       login board
     </div>
+
   </div>
 </template>
 
