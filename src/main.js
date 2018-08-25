@@ -13,6 +13,7 @@ import './plugins/axiosExtend'
 
 // style
 import './assets/style/common.less'
+import './assets/style/class.less'
 
 Vue.use(ElementUI)
 
