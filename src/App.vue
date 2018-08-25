@@ -11,8 +11,12 @@ export default {
 </script>
 
 <style lang="less">
-#id {
-  width: 100%;
+@import './assets/style/color.less';
+
+#app {
   height: 100%;
+  width: 1400px;
+  margin: auto;
+  box-shadow: 0 0 3px @main-color;
 }
 </style>
