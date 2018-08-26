@@ -11,11 +11,15 @@ import 'element-ui/lib/theme-chalk/index.css'
 // axiosExtend
 import './plugins/axiosExtend'
 
+import elementUIExtend from './plugins/elementUIExtend'
+
 // style
 import './assets/style/common.less'
 import './assets/style/class.less'
 
 Vue.use(ElementUI)
+
+Vue.use(elementUIExtend)
 
 Vue.config.productionTip = false
 
