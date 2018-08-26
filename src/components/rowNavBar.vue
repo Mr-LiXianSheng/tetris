@@ -13,21 +13,65 @@
 <script>
 export default {
   name: 'RowNavBar',
-  props: ['rowNavBar'],
+  props: ['rowNavBar', 'value'],
   data () {
     return {
     }
   },
   methods: {
+    /**
+     * @description             处理按钮点击事件
+     * @return     {undefined}  无返回值
+     */
     handleClick (index) {
-      const { rowNavBar } = this
+      const { rowNavBar, rowNavBar: { activeIndex } } = this
+
+      if (index === activeIndex) return
 
       rowNavBar.activeIndex = index
 
-      this.$emit('change', rowNavBar.buttons[index])
+      const { emitInput, emitChange } = this
+
+      emitInput(rowNavBar.buttons[index].value)
+
+      emitChange(rowNavBar.buttons[index])
+    },
+    /**
+     * @description        抛出input事件
+     * @return     {this}  vue实例
+     */
+    emitInput (value) {
+      return this.$emit('input', value)
+    },
+    /**
+     * @description        抛出change事件
+     * @return     {this}  vue实例
+     */
+    emitChange (change) {
+      return this.$emit('change', change)
     }
   },
   created () {
+    const { value, rowNavBar, rowNavBar: { buttons, activeIndex } } = this
+
+    const { emitInput, emitChange } = this
+
+    /**
+     * check weather set activeIndex
+     * if set activeIndex and value is also exist
+     * and activeIndex's value doesn't equal value emit change
+     */
+    if (typeof activeIndex === 'number') {
+      buttons[activeIndex] && emitInput(buttons[activeIndex].value) &&
+        value && (buttons[activeIndex].value !== value) &&
+        emitChange(buttons[activeIndex])
+    } else if (value) {
+      /**
+       * if only set value
+       * refresh activeIndex
+       */
+      rowNavBar.activeIndex = buttons.findIndex(({value: tmpValue}) => tmpValue === value)
+    }
   }
 }
 </script>
