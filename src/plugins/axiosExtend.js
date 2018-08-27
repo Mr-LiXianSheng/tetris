@@ -29,7 +29,7 @@ function interception (fn, methods) {
 
       args[0] += `?${requerParams}`
 
-      args.shift()
+      args.pop()
 
       // POST Request
     } else if (methods === 'post' && argsLen > 2 && args[argsLen - 1] === true) {
