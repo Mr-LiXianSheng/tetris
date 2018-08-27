@@ -5,13 +5,6 @@
       online-board
     </div>
 
-    <!-- search-container -->
-    <div class="search">
-      <el-input placeholder="请输入用户名" v-model="userName">
-        <el-button slot="append" icon="el-icon-search"></el-button>
-      </el-input>
-    </div>
-
   </div>
 </template>
 

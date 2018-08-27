@@ -20,8 +20,7 @@
       <!-- ranking -->
       <table-column
         prop="index"
-        label="Ranking"
-        width="50">
+        label="Ranking">
       </table-column>
 
       <!-- userName -->
@@ -36,37 +35,28 @@
         label="Score">
       </table-column>
 
-      <table-column
-        label="Score">
-        <template slot-scope="scope">
-          {{ scope.row.time }}
-        </template>
-      </table-column>
-
     </table-with-slot>
+
+    <pagination
+      :total="pagination.total"
+      :pageSize="pagination.pageSize"
+      :currentPage="pagination.pageIndex"
+      :pagerNum="6"
+      @change="turnPage"/>
+
   </div>
 </template>
 
 <script>
-import inputWithButton from '@/components/inputWithButton'
-import rowNavBar from '@/components/rowNavBar'
-import tableWithSlot from '@/components/table/tableWithSlot'
-import tableColumn from '@/components/table/tableColumn'
 
 export default {
   name: 'leader-board',
-  components: {
-    inputWithButton,
-    rowNavBar,
-    tableWithSlot,
-    tableColumn
-  },
   data () {
     return {
       // request path
       path: {
         // get leader board request path GET
-        leaderBoardPath: 'leaderBoard'
+        leaderBoardPath: '/api/register/aa'
       },
       // search params
       search: {
@@ -94,29 +84,12 @@ export default {
         activeIndex: 0
       },
       // leader board data
-      leaderBoard: [
-        {
-          userName: 'JiaMing',
-          score: '1200',
-          time: '2018-03-21 19:22'
-        },
-        {
-          userName: 'ZhangSan',
-          score: '1100',
-          time: '2018-03-21 11:22'
-        },
-        {
-          userName: 'JiaMing',
-          score: '800',
-          time: '2018-04-21 19:22'
-        }
-      ],
+      leaderBoard: [],
       // pagination data
       pagination: {
-        total: 0,
+        total: 1000,
         pageSize: 15,
-        pageIndex: 1,
-        pageCount: 1
+        pageIndex: 9
       }
     }
   },
@@ -136,7 +109,7 @@ export default {
 
       if (!res.status) return false
 
-      dealGetLeaderBoardDataReqRes(res.res)
+      return dealGetLeaderBoardDataReqRes(res.res)
     },
     /**
      * @description          Get leader board data's request params
@@ -180,6 +153,19 @@ export default {
       } else {
         $notify('fail', res.msg)
       }
+    },
+    /**
+     * @description           turn to page index
+     * @return     {Promise}  Async Promise
+     */
+    async turnPage (index) {
+      const { pagination } = this
+
+      pagination.pageIndex = index
+
+      const { getLeaderBoardData } = this
+
+      return getLeaderBoardData()
     }
   },
   created () {
@@ -204,6 +190,10 @@ export default {
   }
 
   .leader-board-choose {
+    margin-bottom: 10px;
+  }
+
+  .leader-board-table {
     margin-bottom: 10px;
   }
 }
