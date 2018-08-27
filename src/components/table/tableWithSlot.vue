@@ -1,17 +1,10 @@
 <template>
   <div class="table-with-slot">
-    <div class="table-title-container">
-      <!-- <slot></slot> -->
+    <div class="table-column-container">
+      <slot></slot>
     </div>
 
-    <div class="table-content-container">
-      <div
-        class="table-row"
-        v-for="(row, index) in tableData"
-        :key="row + index">
-        <slot :row="row"></slot>
-      </div>
-    </div>
+    <div v-if="!tableData.length" class="table-no-data">No Data</div>
   </div>
 </template>
 
@@ -27,7 +20,6 @@ export default {
 
   },
   mounted () {
-    console.error(this.$children)
   }
 }
 </script>
@@ -36,20 +28,20 @@ export default {
 @import '../../assets/style/color.less';
 
 .table-with-slot {
-  width: 100%;
-  box-shadow: 0 0 3px @main-color;
 
-  .table-title-container {
+  .table-column-container{
+    // box-shadow: 0 0 3px @main-color;
     display: flex;
     flex-direction: row;
   }
 
-  .table-content-container {
-    .table-row {
-      display: flex;
-      height: 40px;
-      box-shadow: 0 0 3px @main-color;
-    }
+  .table-no-data {
+    height: 40px;
+    color: @main-color;
+    font-weight: bold;
+    line-height: 40px;
+    text-align: center;
+    box-shadow: 0 0 3px @main-color;
   }
 }
 </style>
