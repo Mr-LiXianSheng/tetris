@@ -43,7 +43,7 @@ export default {
             value: 'register'
           }
         ],
-        activeIndex: 1
+        activeIndex: 0
       }
     }
   }

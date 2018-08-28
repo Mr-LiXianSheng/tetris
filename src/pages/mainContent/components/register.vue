@@ -120,6 +120,9 @@ export default {
      * @return     {undefined}  no return
      */
     dealRegisterReqRes (res) {
+      const { $notify } = this
+
+      $notify('Success', 'Register Success!', 'success')
     }
   }
 }
