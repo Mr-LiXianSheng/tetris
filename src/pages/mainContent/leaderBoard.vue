@@ -132,30 +132,15 @@ export default {
      * @return     {Promise}  Request Promise
      */
     sendGetLeaderBoardDataReq (params) {
-      const { $http: { get }, path: { leaderBoardPath }, $notify } = this
+      const { $http: { get }, path: { leaderBoardPath } } = this
 
-      return get(leaderBoardPath, params).then(res => ({
-        status: true,
-        res
-      })).catch(e => {
-        $notify()
-
-        return { status: false }
-      })
+      return get(leaderBoardPath, params)
     },
     /**
      * @description            Deal get leader board data req response
      * @return    {undefined}  no return value
      */
     dealGetLeaderBoardDataReqRes (res) {
-      const { $notify } = this
-
-      if (res.code !== 'success') {
-        $notify('fail', res.msg)
-
-        return
-      }
-
       this.leaderBoard = res.data
 
       const { updatePagination } = this
