@@ -8,3 +8,11 @@
   font-size: 20px;
 }
 
+// less function class
+.text-shadow-small(@color: @main-color){
+  text-shadow: 0 0 1px #fff,
+  0 0 2px #fff,
+  0 0 3px #fff,
+  0 0 4px @color,
+  0 0 5px @color;
+}
