@@ -68,9 +68,9 @@ function checkRequestParams () {
  * 			   {query result status, result num, result}
  */
 function query ($sql) {
-	Global $db;
+	Global $DB;
 
-	$result = $db->query($sql);
+	$result = $DB->query($sql);
 
 	$data = new StdClass();
 
@@ -82,7 +82,7 @@ function query ($sql) {
 	// no sql
 	if (!$sql) return $data;
 
-	$result = $db->query($sql);
+	$result = $DB->query($sql);
 
 	// query fail. for example sql is wrong
 	if (!$result) return $data;
@@ -91,8 +91,8 @@ function query ($sql) {
 	$data->status = true;
 
 	// set query result num
-	$num = $result->num_rows;
-	$data->num = $num;
+	@$num = $result->num_rows;
+	$data->num = $num ? $num : 0;
 
 	// if result num equal zero, return directly
 	if ($num === 0) return $data;
