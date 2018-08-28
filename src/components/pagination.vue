@@ -1,6 +1,10 @@
 <template>
   <div class="pagination" :ref="ref.pagination">
+
+    <div class="first" @click="$emit('change', 1)" v-if="status === 'prev' && currentPage !== 1">1</div>
+
     <div class="prev" @click.stop="turnPrev"><i class="el-icon-arrow-left" /></div>
+
     <div class="pagers">
       <div v-for="pager in pagers"
         :key="pager"
@@ -9,7 +13,10 @@
         {{ pager }}
       </div>
     </div>
+
     <div class="next" @click="turnNext"><i class="el-icon-arrow-right" /></div>
+
+    <div class="last" @click="$emit('change', pageCount)" v-if="status === 'next' && currentPage !== pageCount">{{ pageCount }}</div>
   </div>
 </template>
 
@@ -26,14 +33,23 @@ export default {
       // num letter width
       pagerNumWidth: 10,
       // pagers
-      pagers: []
+      pagers: [],
+      // turn to page status
+      status: 'next'
+    }
+  },
+  computed: {
+    pageCount () {
+      const { calcPageCount } = this
+
+      return calcPageCount()
     }
   },
   watch: {
     currentPage () {
-      const { initPagers } = this
+      const { refreshPagers } = this
 
-      initPagers()
+      refreshPagers()
     }
   },
   methods: {
@@ -132,7 +148,7 @@ export default {
 
       const turnIndex = 2 * pagersFirst - currentPage
 
-      const index = (turnIndex < 1 ? 0 : turnIndex)
+      const index = (turnIndex < 1 ? 1 : turnIndex)
 
       if (index === currentPage) return
 
@@ -156,6 +172,25 @@ export default {
       if (index === currentPage) return
 
       this.$emit('change', index)
+    },
+    /**
+     * @description             refresh pager btns
+     * @return     {undefined}  no return
+     */
+    refreshPagers () {
+      const { initPagers } = this
+
+      const beforeRefreshFirstIndex = this.pagers[0]
+
+      initPagers()
+
+      const afterRefreshFirstIndex = this.pagers[0]
+
+      if (beforeRefreshFirstIndex < afterRefreshFirstIndex) {
+        this.status = 'next'
+      } else if (beforeRefreshFirstIndex > afterRefreshFirstIndex) {
+        this.status = 'prev'
+      }
     }
   },
   mounted () {
@@ -211,7 +246,8 @@ export default {
 
   .prev, .next {
     position: relative;
-    flex: 0 0 50px;
+    flex: 0 0 auto;
+    padding: 0 10px;
     color: @main-color;
     font-weight: bold;
     cursor: pointer;
@@ -228,18 +264,26 @@ export default {
       cursor: pointer;
       .hover;
     }
+  }
 
-    .current {
-      font-weight: bold;
-      cursor: default;
+  .current {
+    font-weight: bold;
+    cursor: default;
 
-      &:hover {
-        &::after {
-          width: 0px;
-          height: 0px;
-        }
+    &:hover {
+      &::after {
+        width: 0px;
+        height: 0px;
       }
     }
+  }
+
+  .first, .last {
+    position: relative;
+    padding: 0 10px;
+    color: @main-color;
+    cursor: pointer;
+    .hover;
   }
 }
 </style>
