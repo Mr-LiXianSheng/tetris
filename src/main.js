@@ -21,6 +21,9 @@ import GlobalComponents from './components/index'
 import './assets/style/common.less'
 import './assets/style/class.less'
 
+// icon
+import './assets/font/iconfont.css'
+
 Vue.use(ElementUI)
 
 Vue.use(elementUIExtend)
