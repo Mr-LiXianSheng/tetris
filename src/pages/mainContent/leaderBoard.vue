@@ -14,8 +14,8 @@
 
     <!-- leader board table -->
     <table-with-slot
-    class="leader-board-table"
-    :tableData="leaderBoard">
+      class="leader-board-table"
+      :tableData="leaderBoard">
 
       <!-- ranking -->
       <table-column
@@ -37,13 +37,13 @@
 
     </table-with-slot>
 
+    <!-- pagination -->
     <pagination
+      v-if="pagination.total"
       :total="pagination.total"
       :pageSize="pagination.pageSize"
       :currentPage="pagination.pageIndex"
-      :pagerNum="6"
       @change="turnPage"/>
-
   </div>
 </template>
 
@@ -87,9 +87,9 @@ export default {
       leaderBoard: [],
       // pagination data
       pagination: {
-        total: 1000,
+        total: 0,
         pageSize: 15,
-        pageIndex: 9
+        pageIndex: 1
       }
     }
   },
@@ -116,12 +116,14 @@ export default {
      * @return     {Object}  Request params
      */
     getLeaderBoardDataReqParams () {
-      const { search } = this
+      const { search, pagination: { pageSize, pageIndex } } = this
 
       return {
         status: true,
         params: {
-          ...search
+          ...search,
+          pageSize,
+          pageIndex
         }
       }
     },
@@ -148,11 +150,28 @@ export default {
     dealGetLeaderBoardDataReqRes (res) {
       const { $notify } = this
 
-      if (res.code === 'success') {
-        this.leaderBoard = res.data
-      } else {
+      if (res.code !== 'success') {
         $notify('fail', res.msg)
+
+        return
       }
+
+      this.leaderBoard = res.data
+
+      const { updatePagination } = this
+
+      updatePagination(res.data)
+    },
+    /**
+     * @description             update pagination data
+     * @return     {undefined}  no return
+     */
+    updatePagination ({ total, pageSize, pageIndex }) {
+      const { pagination } = this
+
+      pagination.total = total
+      pagination.pageSize = pageSize
+      pagination.pageIndex = pageIndex
     },
     /**
      * @description           turn to page index
