@@ -3,7 +3,7 @@ import Axios from 'axios'
 
 import { baseInfo } from '../config'
 
-import { Message } from 'element-ui'
+import { Notification, Message } from 'element-ui'
 
 Vue.prototype.$http = Axios
 
@@ -46,7 +46,22 @@ function interception (fn, methods) {
       /**
        * do something
        */
-      .then(res => res)
+      .then(({ data }) => {
+        if (data.code === 'success') {
+          return {
+            status: true,
+            res: data
+          }
+        }
+
+        Notification({
+          title: 'Fail',
+          message: data.msg,
+          type: 'error'
+        })
+
+        return { status: false }
+      })
       /**
        * deal request error
        */
@@ -56,7 +71,7 @@ function interception (fn, methods) {
           type: 'warning'
         })
 
-        return Promise.reject(new Error(warningMsg))
+        return { status: false }
       })
   }
 }
