@@ -1,7 +1,7 @@
 <template>
   <div class="pagination" :ref="ref.pagination">
 
-    <div class="first" @click="$emit('change', 1)" v-if="status === 'prev' && currentPage !== 1">1</div>
+    <div class="first" @click="$emit('change', 1)" v-if="status === 'prev' && currentPage !== 1 && pageCount !== 0">1</div>
 
     <div class="prev" @click.stop="turnPrev"><i class="el-icon-arrow-left" /></div>
 
@@ -16,7 +16,7 @@
 
     <div class="next" @click="turnNext"><i class="el-icon-arrow-right" /></div>
 
-    <div class="last" @click="$emit('change', pageCount)" v-if="status === 'next' && currentPage !== pageCount">{{ pageCount }}</div>
+    <div class="last" @click="$emit('change', pageCount)" v-if="status === 'next' && currentPage !== pageCount  && pageCount !== 0">{{ pageCount }}</div>
   </div>
 </template>
 
@@ -142,7 +142,9 @@ export default {
      * @return     {undefined}  no return
      */
     turnPrev () {
-      const { currentPage, pagers } = this
+      const { pageCount, currentPage, pagers } = this
+
+      if (!pageCount) return
 
       const pagersFirst = pagers[0]
 
@@ -159,9 +161,9 @@ export default {
      * @return     {undefined}  no return
      */
     turnNext () {
-      const { currentPage, pagers, calcPageCount } = this
+      const { currentPage, pagers, pageCount } = this
 
-      const pageCount = calcPageCount()
+      if (!pageCount) return
 
       const pagersLast = pagers[pagers.length - 1]
 
