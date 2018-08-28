@@ -38,11 +38,8 @@ export default {
     box-shadow: 0 0 3px @main-color;
     height: 40px;
     width: 100%;
-    text-indent: 15px;
-    font-size: 14px;
 
     &::-webkit-input-placeholder {
-      font-size: 15px;
       color: fade(@main-color, 80);
     }
   }
