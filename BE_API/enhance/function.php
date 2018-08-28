@@ -33,6 +33,29 @@ function checkRequestMethod ($type = false) {
 }
 
 /**
+ * check Request params is complete
+ */
+function checkRequestParams () {
+	GLOBAL $RESPONSE;
+
+	$length = func_num_args();
+
+	$missingParam = false;
+
+	for ($i = 0; $i < $length; $i++) {
+		if (@!$_REQUEST[func_get_arg($i)]) {
+			$missingParam = func_get_arg($i);
+
+			break;
+		}
+	}
+
+	if (!$missingParam) return;
+
+	require(FILE_ROOT . 'error/requestParamsMiss.php');
+}
+
+/**
  * Query DBA data
  * 
  * @param  String $sql
