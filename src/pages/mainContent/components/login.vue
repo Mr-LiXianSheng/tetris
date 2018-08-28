@@ -170,7 +170,7 @@ export default {
     sendLoginReq (params) {
       const { $http: { post }, path: { loginPath } } = this
 
-      return post(loginPath, params)
+      return post(loginPath, params, true)
     },
     /**
      * @description             deal login request response
