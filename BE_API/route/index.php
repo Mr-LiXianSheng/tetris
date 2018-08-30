@@ -26,7 +26,10 @@ const ROUTE_FILE_ROOT = FILE_ROOT . 'api/';
 // MODULE ROUTER
 switch ($MODULE) {
 
-  case 'registration': require(ROUTE_FILE_ROOT. 'registration/index.php');
+  case 'registration': require(ROUTE_FILE_ROOT . 'registration/index.php');
+    break;
+
+  case 'login'       : require(ROUTE_FILE_ROOT . 'login/index.php');
     break;
 
   default: require(FILE_ROOT . 'error/requestPathError.php');

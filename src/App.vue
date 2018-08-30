@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <canvas-b-g />
     <router-view/>
   </div>
 </template>
