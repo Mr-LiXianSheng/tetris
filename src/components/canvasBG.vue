@@ -45,7 +45,7 @@ export default {
         // ball's min radius
         ballMinRadius: 10,
         // two ball's max connect line distance
-        maxConnectDis: 200,
+        maxConnectDis: 300,
         // max speed when ball move
         maxV: 2,
         // min speed when ball move
@@ -240,7 +240,31 @@ export default {
      * @return     {undefined}  no return
      */
     drawConnectLines () {
+      const { balls, getCurrentColor, drawLine, config: { maxConnectDis } } = this
 
+      const ballNum = balls.length
+
+      const { abs, hypot } = Math
+
+      const color = getCurrentColor()
+
+      balls.forEach((a, i) => {
+        balls.forEach((b, j) => {
+          if (i + j >= ballNum) return
+
+          const ballOne = balls[i]
+          const ballTwo = balls[i + j]
+
+          const absX = abs(ballOne.x - ballTwo.x)
+          const absY = abs(ballOne.y - ballTwo.y)
+
+          const lineDistance = hypot(absX, absY)
+
+          if (lineDistance > maxConnectDis) return
+
+          drawLine(ballOne, ballTwo, color)
+        })
+      })
     },
     /**
      * @description             calc balls position
@@ -262,6 +286,26 @@ export default {
         array[index].x = currentX
         array[index].y = currentY
       })
+    },
+    /**
+     * @description             draw two points connect line
+     * @return     {undefined}  no return
+     */
+    drawLine ({x: bx, y: by}, {x: ex, y: ey}, color) {
+      const { ctx } = this
+
+      ctx.beginPath()
+
+      ctx.moveTo(bx, by)
+      ctx.lineTo(ex, ey)
+
+      ctx.closePath()
+
+      ctx.strokeStyle = color
+
+      ctx.lineWidth = 0.3
+
+      ctx.stroke()
     }
   },
   mounted () {
