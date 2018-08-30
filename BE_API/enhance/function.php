@@ -154,7 +154,7 @@ function randomNum ($n) {
  */
 function uniqtag ($str) {
 
-	return hash('md4', $str . uniqid());
+	return hash('md5', $str . uniqid());
 
 }
 
