@@ -8,6 +8,8 @@ import tableColumn from './table/tableColumn.vue'
 
 import pagination from './pagination.vue'
 
+import canvasBG from './canvasBG'
+
 export default {
   install: (Vue) => {
     Vue.component('inputWithButton', inputWithButton)
@@ -15,5 +17,6 @@ export default {
     Vue.component('tableWithSlot', tableWithSlot)
     Vue.component('tableColumn', tableColumn)
     Vue.component('pagination', pagination)
+    Vue.component('canvasBG', canvasBG)
   }
 }
