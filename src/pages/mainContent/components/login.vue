@@ -22,7 +22,7 @@ export default {
     return {
       // request path
       path: {
-        loginPath: 'api/login'
+        loginPath: 'api/login/login'
       },
       // user name
       userName: '',
@@ -68,7 +68,7 @@ export default {
 
       if (!localStorageAccount.status) return
 
-      const { userName, passWord, remember } = this
+      const { userName, passWord, remember } = localStorageAccount.account
 
       this.userName = userName
       this.passWord = passWord
@@ -88,9 +88,9 @@ export default {
      * @return     {undefined}  no return
      */
     setUserAccountInfoToLocalStorage ({ userName, passWord }) {
-      localStorage.removeItem('userName', userName)
-      localStorage.removeItem('passWord', passWord)
-      localStorage.removeItem('remember', true)
+      localStorage.setItem('userName', userName)
+      localStorage.setItem('passWord', passWord)
+      localStorage.setItem('remember', true)
     },
     /**
      * @description           login
@@ -140,7 +140,9 @@ export default {
           params: md5Params
         }
       } else {
-        if (localStorageAccount.userName === this.userName || localStorageAccount.passWord === this.passWord) {
+        const { account } = localStorageAccount
+
+        if (account.userName === this.userName || account.passWord === this.passWord) {
           return {
             status: true,
             params
@@ -178,6 +180,9 @@ export default {
      * @return     {undefined}  no return
      */
     dealLoginReqRes (res) {
+      const { $notify } = this
+
+      $notify('Success', res.msg, 'success')
     },
     /**
      * @description             update user account info in local storage
