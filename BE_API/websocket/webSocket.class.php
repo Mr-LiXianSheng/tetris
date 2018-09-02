@@ -15,32 +15,23 @@ class WebSocket {
 	const LISTEN_SOCKET_NUM = 99;
 
 	// Init socket connect pond
-	private $sockets = [];
+	public $sockets = [];
 
 	// Statement Main Socket
     private $master;
 
-    private $LogicServe;
+    private $logicServe;
 
-    public function register ($object) {
-        $LogicServe = $object;
-    }
-
-    /**
-     * @description  Constructer
-     * @param String Listening Address
-	   * @param String Listening Port
-     */
-    public function __construct($host, $port) {
+    // Instantiation Main Socket
+    private function startWebSocket ($host, $port) {
 
         try {
-        	// Instantiation Main Socket
             $this->master = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 
             // Set IP and Port Reuse, when reLaunch Service can use it also
             socket_set_option($this->master, SOL_SOCKET, SO_REUSEADDR, 1);
 
-            // Bind Address and Port to Main Socket
+            // Bind host and Port to Main Socket
             socket_bind($this->master, $host, $port);
 
             /*
@@ -62,12 +53,11 @@ class WebSocket {
         // make Main Socket as first in connect pond
         $this->sockets[0] = ['resource' => $this->master];
 
-        // debug
-        // $pid = function_exists('posix_getpwuid') ? posix_getpid() : get_current_user();
+    }
 
-        // $this->debug(["server: {$this->master} started,pid: {$pid}"]);
+    // try get new connect request or data
+    private function cycleWaitDoServe () {
 
-        // try get new connect request or data
         while (true) {
 
             try {
@@ -77,14 +67,13 @@ class WebSocket {
             } catch (\Exception $e) {
 
             	$err_code = $e->getCode();
-            	$err_msg = $e->getMessage();
-
+                $err_msg = $e->getMessage();
+                
             }
 
         }
 
     }
-
 
     /**
 	 * get new connect request or data
@@ -173,7 +162,7 @@ class WebSocket {
                 // if data's bit no more than 9, this indicate socket be disconnected
                 if ($bytes < 9) {
 
-                    $recv_msg = $this->disconnect($socket);
+                    $this->disconnect($socket);
 
                 } else {
 
@@ -181,19 +170,15 @@ class WebSocket {
                     if (!$this->sockets[(int)$socket]['handshake']) {
 
                         self::handShake($socket, $buffer);
-                        continue;
 
                     } else {
 
                     	// analysis data
                         $recv_msg = self::parse($buffer);
+                        $this->dealMessage($socket, $recv_msg);
 
                     }
                 }
-
-                $msg = self::dealMsg($socket, $recv_msg);
-
-                $this->broadcast($msg);
             }
         }
     }
@@ -206,35 +191,32 @@ class WebSocket {
      */
     public function connect($socket) {
 
-    	// get remote socket's ip and port
-        socket_getpeername($socket, $ip, $port);
+    	// get remote socket's host and port
+        socket_getpeername($socket, $host, $port);
 
+        // init socket base attribute
         $socket_info = [
-            'resource'  => $socket,
-            'handshake' => false,
-            'ip'        => $ip,
-            'port'      => $port,
+            // socket resource
+            'resource'    => $socket,
+            // hand shake status
+            'handshake'   => false,
+            // socket remote host
+            'host'        => $host,
+            // socket remote port
+            'port'        => $port,
+            // socket connect time
+            'connectTime' => time('Y-m-d H:i:s'),
+            // socket data | be writed by user
+            'data'        => new StdClass(),
+            // store active message data
+            'message'     => new StdClass(),
+            // active type
+            'activeType'  => 'connect',
+            // active time
+            'activeTime'  => time('Y-m-d H:i:s')
         ];
+
         $this->sockets[(int)$socket] = $socket_info;
-    }
-
-    /**
-     * disconnect socket
-     *
-     * @param socket
-     *
-     * @return Array
-     */
-    private function disconnect($socket) {
-    	$recv_msg = new stdClass();
-
-    	$recv_msg->status = true;
-    	$recv_msg->msg = 'someone logout';
-    	$recv_msg->time = date('Y-m-d,H:i:s');
-
-        unset($this->sockets[(int)$socket]);
-
-        return $recv_msg;
     }
 
     /**
@@ -256,7 +238,7 @@ class WebSocket {
          * create upgrade key and stitching websocket upgrade header
          */
         $upgrade_key = base64_encode(sha1($key . "258EAFA5-E914-47DA-95CA-C5AB0DC85B11", true));
-        $upgrade_message = "HTTP/1.1 101 Switching Protocols\r\n";
+        $upgrade_message  = "HTTP/1.1 101 Switching Protocols\r\n";
         $upgrade_message .= "Upgrade: websocket\r\n";
         $upgrade_message .= "Sec-WebSocket-Version: 13\r\n";
         $upgrade_message .= "Connection: Upgrade\r\n";
@@ -268,19 +250,30 @@ class WebSocket {
         // change hand shake status
         $this->sockets[(int)$socket]['handshake'] = true;
 
-        // socket_getpeername($socket, $ip, $port);
+        $this->sockets[(int)$socket]['activeType'] = 'online';
+        $this->sockets[(int)$socket]['activeTime'] = time('Y-m-d H:i:s');
+        $this->sockets[(int)$socket]['message'] = 'online';
 
-        // send msg to client
-        $msg = [
-            'type' => 'handshake',
-            'content' => 'done',
-        ];
-
-        $msg = $this->build(json_encode($msg));
-
-        socket_write($socket, $msg, strlen($msg));
+        $this->onMessage($this->sockets[(int)$socket], $this->sockets);
 
         return true;
+    }
+
+    /**
+     * disconnect socket
+     *
+     * @param socket
+     *
+     * @return Array
+     */
+    public function disconnect($socket) {
+        $this->sockets[(int)$socket]->activeType = 'offline';
+        $this->sockets[(int)$socket]->activeTime = time('Y-m-d H:i:s');
+        $this->sockets[(int)$socket]->message = 'offline';
+
+        $this->onMessage($this->sockets[(int)$socket], $this->sockets);
+
+        unset($this->sockets[(int)$socket]);
     }
 
     /**
@@ -356,33 +349,50 @@ class WebSocket {
      *
      * @return JSON string
      */
-    private function dealMsg($socket, $recv_msg) {
+    private function dealMessage($socket, $recv_msg) {
+        $this->sockets[(int)$socket]['activeType'] = 'message';
+        $this->sockets[(int)$socket]['activeTime'] = time('Y-m-d H:i:s');
+        $this->sockets[(int)$socket]['message']    = $recv_msg;
 
-    	if (!isset($recv_msg->status)) {
-    		// 离线处理
-    	}
-
-    	return $this->build(json_encode($recv_msg));
+        $this->onMessage($this->sockets[(int)$socket], $this->sockets);
     }
 
     /**
-     * 广播消息
-     *
-     * @param $data
+     * Logic function should be covered by user
+     * @param socket   active socket
+     * @param sockets  all sockets
      */
-    private function broadcast($data) {
+    // private function onMessage ($socket, $sockets) {
+    // }
 
-        foreach ($this->sockets as $socket) {
+    /**
+     * Send message to sockets
+     * @param   message  be sended message
+     * @param   sockets  be sended sockets Array
+     */
+    public function sendMessage ($msg, $sockets) {
+        if (!$msg || !$sockets) return;
 
-            if ($socket['resource'] == $this->master) {
+        $msg = json_encode($msg);
+        $msg = $this->build($msg);
 
-                continue;
-
-            }
-
-            socket_write($socket['resource'], $data, strlen($data));
+        foreach ($sockets as $socket) {
+            if ($socket === $this->master) continue;
+            socket_write($socket, $msg, strlen($msg));
         }
     }
 
+    /**
+     * @description  Constructer
+     * @param String Listening Address
+     * @param String Listening Port
+     */
+    public function __construct($host, $port) {
+
+        $this->startWebSocket($host, $port);
+
+        $this->cycleWaitDoServe();
+
+    }
 }
 ?>
