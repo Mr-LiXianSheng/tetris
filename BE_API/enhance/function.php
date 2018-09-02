@@ -70,8 +70,6 @@ function checkRequestParams () {
 function query ($sql) {
 	Global $DB;
 
-	$result = $DB->query($sql);
-
 	$data = new StdClass();
 
 	// init return data attribute
