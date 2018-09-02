@@ -189,13 +189,13 @@ export default {
      * @return     {undefined}  no return
      */
     dealLoginReqRes (res) {
-      const { $notify, setUserBaseInfo } = this
+      const { $notify, setUserBaseInfo, createWebSocketConnectionLooper } = this
 
       setUserBaseInfo(res.data)
 
-      console.error(this.userBaseInfo)
-
       $notify('Success', res.msg, 'success')
+
+      createWebSocketConnectionLooper()
     },
     /**
      * @description             update user account info in local storage
@@ -247,8 +247,10 @@ export default {
      * @return     {undefined}  no return
      */
     async createWebSocketConnectionLooper () {
+      const { createWebSocketConnection } = this
+
       while (true) {
-        await this.createWSConnection().catch(e => {})
+        await createWebSocketConnection().catch(e => {})
         await new Promise((resolve, reject) => {
           setTimeout(() => {
             resolve()
@@ -270,11 +272,12 @@ export default {
      * @return     {undefined}  no return
      */
     onOpen () {
-      const { sendMessage, token } = this
+      const { sendMessage, userBaseInfo: { TOKEN, UID } } = this
 
       const message = {
         type: 'online',
-        token
+        token: TOKEN,
+        uid: UID
       }
 
       sendMessage(message)
@@ -284,7 +287,7 @@ export default {
      * @return     {undefined}  no return
      */
     onMessage (e) {
-
+      console.error(e)
     },
     ...mapMutations(['setUserBaseInfo'])
   },
