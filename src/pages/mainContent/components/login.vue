@@ -16,6 +16,10 @@
 <script>
 import md5 from 'md5'
 
+import { baseInfo } from '@/config'
+
+import { mapState, mapMutations } from 'vuex'
+
 export default {
   name: 'Login',
   data () {
@@ -31,8 +35,13 @@ export default {
       // weather remember user's password
       remember: false,
       // temp user account info
-      tempUserAccountInfo: {}
+      tempUserAccountInfo: {},
+      // ws
+      ws: {}
     }
+  },
+  computed: {
+    ...mapState(['userBaseInfo'])
   },
   methods: {
     /**
@@ -142,7 +151,7 @@ export default {
       } else {
         const { account } = localStorageAccount
 
-        if (account.userName === this.userName || account.passWord === this.passWord) {
+        if (account.userName === this.userName && account.passWord === this.passWord) {
           return {
             status: true,
             params
@@ -180,7 +189,11 @@ export default {
      * @return     {undefined}  no return
      */
     dealLoginReqRes (res) {
-      const { $notify } = this
+      const { $notify, setUserBaseInfo } = this
+
+      setUserBaseInfo(res.data)
+
+      console.error(this.userBaseInfo)
 
       $notify('Success', res.msg, 'success')
     },
@@ -194,7 +207,86 @@ export default {
       const { deleteUserAccountInfoFromLocalStorage, setUserAccountInfoToLocalStorage } = this
 
       remember ? setUserAccountInfoToLocalStorage(tempUserAccountInfo) : deleteUserAccountInfoFromLocalStorage()
-    }
+    },
+    /**
+     * @description           Create websocket connection
+     * @return     {Promise}  Promise
+     */
+    createWebSocketConnection () {
+      const { websocketUrl } = baseInfo
+
+      const { onOpen, onMessage } = this
+
+      return new Promise((resolve, reject) => {
+        const ws = new WebSocket(`ws://${websocketUrl}`)
+
+        this.ws = ws
+
+        ws.onopen = e => {
+          console.info('Websocket connection!')
+          onOpen()
+        }
+
+        ws.onmessage = e => {
+          onMessage(JSON.parse(e.data))
+        }
+
+        ws.onclose = e => {
+          console.info('Websocket connection is closed, reconnecting...')
+          reject(e)
+        }
+
+        ws.onerror = e => {
+          console.debug('Websocket connection is error!')
+          reject(e)
+        }
+      })
+    },
+    /**
+     * @description             Reconnect websocket when error or close
+     * @return     {undefined}  no return
+     */
+    async createWebSocketConnectionLooper () {
+      while (true) {
+        await this.createWSConnection().catch(e => {})
+        await new Promise((resolve, reject) => {
+          setTimeout(() => {
+            resolve()
+          }, 3000)
+        })
+      }
+    },
+    /**
+     * @description             send message by websocket
+     * @return     {undefined}  no return
+     */
+    sendMessage (msg) {
+      const { ws } = this
+
+      ws.send(JSON.stringify(msg))
+    },
+    /**
+     * @description             websocket on open
+     * @return     {undefined}  no return
+     */
+    onOpen () {
+      const { sendMessage, token } = this
+
+      const message = {
+        type: 'online',
+        token
+      }
+
+      sendMessage(message)
+    },
+    /**
+     * @description             websocket on message
+     * @return     {undefined}  no return
+     */
+    onMessage (e) {
+
+    },
+    ...mapMutations(['setUserBaseInfo'])
   },
   created () {
     const { setUserAccountInfoFromLocalStorage } = this
