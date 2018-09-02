@@ -17,6 +17,9 @@ import elementUIExtend from './plugins/elementUIExtend'
 // some global components
 import GlobalComponents from './components/index'
 
+// Vuex store
+import store from './store'
+
 // style
 import './assets/style/common.less'
 import './assets/style/class.less'
@@ -36,6 +39,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })
