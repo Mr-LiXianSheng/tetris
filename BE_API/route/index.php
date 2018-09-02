@@ -32,6 +32,9 @@ switch ($MODULE) {
   case 'login'       : require(ROUTE_FILE_ROOT . 'login/index.php');
     break;
 
+  case 'websocket'   : require(ROUTE_FILE_ROOT . 'websocket/index.php');
+    break;
+
   default: require(FILE_ROOT . 'error/requestPathError.php');
     break;
 

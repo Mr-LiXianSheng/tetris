@@ -1,6 +1,7 @@
 <?php
 require('webSocket.class.php');
+require('logic.class.php');
 
-$ws = new WebSocket("192.168.10.150", "8888");
+$ws = new LogicWS("192.168.10.150", "5921");
 ?>
 
