@@ -30,10 +30,15 @@ if ($passWord !== $md5PassWord) {
   throwRequestResponse();
 }
 
+$userInfo = $result->result[0];
+
+$result->result[0]['TOKEN'] = hash('md5', $userInfo['UID'] . $userInfo['PASSWORD'] . $userInfo['REGTIME']);
+
 $RESPONSE->code = 'success';
 $RESPONSE->msg = 'Login Success!';
 $RESPONSE->data = $result->result[0];
 unset($RESPONSE->data['PASSWORD']);
+unset($RESPONSE->data['REGTIME']);
 
 $_SESSION['USER'] = $result->result[0];
 
