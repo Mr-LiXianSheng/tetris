@@ -50,7 +50,27 @@ Class LogicWS extends WebSocket {
 
     switch ($messageType) {
       case 'online':
-        $userName = $message['userName'];
+
+        $uid   = $message['uid'];
+        $token = $message['token'];
+
+        $userInfo = query("SELECT * FROM `USER` WHERE `UID` = '${uid}'");
+
+        if (!$userInfo->status || $userInfo->num === 0) {
+          $this->disconnect($socket, false);
+
+          return;
+        }
+
+        $userInfo = $userInfo->result[0];
+
+        if ($token !== hash('md5', $userInfo['UID'] . $userInfo['PASSWORD'] . $userInfo['REGTIME'])) {
+          $this->disconnect($socket, false);
+
+          return;
+        }
+
+        $userName = $userInfo['USERNAME'];
         $msg->data->userName = $userName;
         $msg->data->userNum  = count($this->sockets) - 1;
         $msg->data->leaderBoard = $this->getLeaderBoardData();
@@ -73,8 +93,6 @@ Class LogicWS extends WebSocket {
     foreach ($result->result as $index => $record) {
       $uid = $record['UID'];
       $name = query("SELECT `USERNAME` FROM `USER` WHERE `UID` = '${uid}'");
-
-      print_r("SELECT `USERNAME` FROM `USER` WHERE `UID` = '${uid}'");
 
       if (!$name->status || $name->num === 0) {
         $result->result[$index]['name'] = 'error';
