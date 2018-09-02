@@ -1,5 +1,7 @@
 <?php
 Class LogicWS extends WebSocket {
+  public $leaderBoardData;
+
   public function onMessage ($socket) {
     $activeType = $socket['activeType'];
     $activeTime = $socket['activeTime'];
@@ -50,12 +52,41 @@ Class LogicWS extends WebSocket {
       case 'online':
         $userName = $message['userName'];
         $msg->data->userName = $userName;
-        $msg->data->userNum = count($this->sockets) - 1;
+        $msg->data->userNum  = count($this->sockets) - 1;
+        $msg->data->leaderBoard = $this->getLeaderBoardData();
 
         $this->sendMessage($msg, array_column($this->sockets, 'resource'));
         exit;
         break;
     }
+  }
+
+  public function getLeaderBoardData ($status = false) {
+    if ($this->leaderBoardData && $status === false) return $this->leaderBoardData;
+
+    $result = query("SELECT * FROM `LEADER_BOARD` ORDER BY `SCORE` DESC LIMIT 50");
+
+    if (!$result->status || $result->num === 0) return [];
+
+    $num = $result->num;
+
+    foreach ($result->result as $index => $record) {
+      $uid = $record['UID'];
+      $name = query("SELECT `USERNAME` FROM `USER` WHERE `UID` = '${uid}'");
+
+      print_r("SELECT `USERNAME` FROM `USER` WHERE `UID` = '${uid}'");
+
+      if (!$name->status || $name->num === 0) {
+        $result->result[$index]['name'] = 'error';
+        continue;
+      }
+
+      $result->result[$index]['name'] = $name->result[0]['USERNAME'];
+    }
+
+    $this->leaderBoardData = $result->result;
+
+    return $result->result;
   }
 }
 ?>
