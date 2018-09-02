@@ -7,5 +7,7 @@ export const baseInfo = {
 
   version: 'v_0.0.1',
 
-  developer: 'JiaMing'
+  developer: 'JiaMing',
+
+  websocketUrl: '192.168.10.150:5921'
 }
