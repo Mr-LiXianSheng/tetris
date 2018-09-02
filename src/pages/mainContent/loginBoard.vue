@@ -46,6 +46,10 @@ export default {
         activeIndex: 0
       }
     }
+  },
+  methods: {
+  },
+  created () {
   }
 }
 </script>
