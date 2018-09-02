@@ -32,9 +32,21 @@ const DEV_DBA_PASS = 'jiaming';
 
 const DEV_OLE_PASS = 'jiamingTetris';
 
+const DEV_WS_HOST = '192.168.10.150';
+
+const OLE_WS_HOST = '192.168.10.150';
+
+const DEV_WS_PORT = '5921';
+
+const OLE_WS_PORT = '5921';
+
 const DBA_USER = ENV === 'dev' ? DEV_DBA_USER : OLE_DBA_USER;
 
 const DBA_PASS = ENV === 'dev' ? DEV_DBA_PASS : OLE_DBA_PASS;
+
+const WS_HOST = ENV === 'dev' ? DEV_WS_HOST : OLE_WS_HOST;
+
+const WS_PORT = ENV === 'dev' ? DEV_WS_PORT : OLE_WS_PORT;
 
 
 
