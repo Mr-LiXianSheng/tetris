@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 
-const $http = Vue.prototype.$http
+// const $http = Vue.prototype.$http
 
 Vue.use(Vuex)
 
