@@ -1,11 +1,17 @@
 <?php
 Class LogicWS extends WebSocket {
+  public $msg;
+
   public $leaderBoardData;
 
   public function onMessage ($socket) {
+    $this->msg = new StdClass();
+
+    $this->msg->status = true;
+    $this->msg->type   = $messageType;
+    $this->msg->data   = new StdClass();
+
     $activeType = $socket['activeType'];
-    $activeTime = $socket['activeTime'];
-    $message    = $socket['message'];
 
     switch ($activeType) {
       case 'online': ;
@@ -36,49 +42,43 @@ Class LogicWS extends WebSocket {
   }
 
   public function dealUserMessage ($socket) {
-    $activeType = $socket['activeType'];
-    $activeTime = $socket['activeTime'];
     $message    = $socket['message'];
 
     $messageType = $message['type'];
 
-    $msg = new StdClass();
-
-    $msg->status = true;
-    $msg->type   = $messageType;
-    $msg->data   = new StdClass();
-
     switch ($messageType) {
-      case 'online':
-
-        $uid   = $message['uid'];
-        $token = $message['token'];
-
-        $userInfo = query("SELECT * FROM `USER` WHERE `UID` = '${uid}'");
-
-        if (!$userInfo->status || $userInfo->num === 0) {
-          $this->disconnect($socket, false);
-
-          return;
-        }
-
-        $userInfo = $userInfo->result[0];
-
-        if ($token !== hash('md5', $userInfo['UID'] . $userInfo['PASSWORD'] . $userInfo['REGTIME'])) {
-          $this->disconnect($socket, false);
-
-          return;
-        }
-
-        $userName = $userInfo['USERNAME'];
-        $msg->data->userName = $userName;
-        $msg->data->userNum  = count($this->sockets) - 1;
-        $msg->data->leaderBoard = $this->getLeaderBoardData();
-
-        $this->sendMessage($msg, array_column($this->sockets, 'resource'));
+      case 'online': $this->dealOnline($socket);
         exit;
         break;
     }
+  }
+
+  public function dealOnline ($socket) {
+    $uid   = $message['uid'];
+    $token = $message['token'];
+
+    $userInfo = query("SELECT * FROM `USER` WHERE `UID` = '${uid}'");
+
+    if (!$userInfo->status || $userInfo->num === 0) {
+      $this->disconnect($socket, false);
+
+      return;
+    }
+
+    $userInfo = $userInfo->result[0];
+
+    if ($token !== hash('md5', $userInfo['UID'] . $userInfo['PASSWORD'] . $userInfo['REGTIME'])) {
+      $this->disconnect($socket, false);
+
+      return;
+    }
+
+    $userName = $userInfo['USERNAME'];
+    $msg->data->userName = $userName;
+    $msg->data->userNum  = count($this->sockets) - 1;
+    $msg->data->leaderBoard = $this->getLeaderBoardData();
+
+    $this->sendMessage($msg, array_column($this->sockets, 'resource'));
   }
 
   public function getLeaderBoardData ($status = false) {
