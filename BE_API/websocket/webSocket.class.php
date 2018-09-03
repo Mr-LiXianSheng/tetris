@@ -18,7 +18,7 @@ class WebSocket {
 	public $sockets = [];
 
 	// Statement Main Socket
-    private $master;
+    public $master;
 
     private $logicServe;
 
