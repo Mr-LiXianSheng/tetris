@@ -287,7 +287,23 @@ export default {
      * @return     {undefined}  no return
      */
     onMessage (e) {
+      const { status, type, data } = e
       console.error(e)
+
+      if (!status) return
+
+      const { dealOnLineMessage } = this
+
+      switch (type) {
+        case 'online': dealOnLineMessage(data)
+          break
+
+        default:
+          break
+      }
+    },
+    dealOnLineMessage ({leaderBoard}) {
+
     },
     ...mapMutations(['setUserBaseInfo'])
   },
