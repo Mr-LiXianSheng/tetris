@@ -8,7 +8,6 @@ Class LogicWS extends WebSocket {
     $this->msg = new StdClass();
 
     $this->msg->status = true;
-    $this->msg->type   = $messageType;
     $this->msg->data   = new StdClass();
 
     $activeType = $socket['activeType'];
@@ -42,9 +41,7 @@ Class LogicWS extends WebSocket {
   }
 
   public function dealUserMessage ($socket) {
-    $message    = $socket['message'];
-
-    $messageType = $message['type'];
+    $this->msg->type = $messageType = $socket['message']['type'];
 
     switch ($messageType) {
       case 'online': $this->dealOnline($socket);
@@ -54,37 +51,83 @@ Class LogicWS extends WebSocket {
   }
 
   public function dealOnline ($socket) {
+    $message = $socket['message'];
     $uid   = $message['uid'];
     $token = $message['token'];
 
-    $userInfo = query("SELECT * FROM `USER` WHERE `UID` = '${uid}'");
+    $userInfo = $this->getUserInfoByUid($uid);
 
-    if (!$userInfo->status || $userInfo->num === 0) {
+    $trueToken = $this->getUserTokenByUid($uid);
+
+    if (!$userInfo || !$trueToken || $token !== $trueToken) {
       $this->disconnect($socket, false);
 
       return;
     }
 
-    $userInfo = $userInfo->result[0];
+    unset($userInfo['PASSWORD']);
 
-    if ($token !== hash('md5', $userInfo['UID'] . $userInfo['PASSWORD'] . $userInfo['REGTIME'])) {
-      $this->disconnect($socket, false);
+    $socket['data']->userInfo = $userInfo;
+    $socket['data']->status = 'online';
 
-      return;
-    }
+    $this->msg->data->userName = $userInfo['USERNAME'];
+    $this->msg->data->userNum  = count($this->sockets) - 1;
+    $this->msg->data->onlineBoard = $this->getOnlineBoardData();
+    $this->msg->data->leaderBoardHistory = $this->getLeaderBoardHistoryData();
 
-    $userName = $userInfo['USERNAME'];
-    $msg->data->userName = $userName;
-    $msg->data->userNum  = count($this->sockets) - 1;
-    $msg->data->leaderBoard = $this->getLeaderBoardData();
-
-    $this->sendMessage($msg, array_column($this->sockets, 'resource'));
+    $this->sendMessage($this->msg, array_column($this->sockets, 'resource'));
+    $this->getUserTokenByUid($userInfo['UID']);
   }
 
-  public function getLeaderBoardData ($status = false) {
+  public function getUserTokenByUid ($uid = false) {
+    if (!$uid) return false;
+
+    $result = query("SELECT `PASSWORD`,`REGTIME` FROM `USER` WHERE `UID` = '${uid}'");
+    
+    if (!$result->status || $result->num === 0) return false;
+    
+    $result = $result->result[0];
+
+    return hash('md5', "${uid}${result['PASSWORD']}${result['REGTIME']}");
+  }
+
+  public function getUserInfoByUid ($uid = false) {
+    if (!$uid) return false;
+
+    $result = query("SELECT * FROM `USER` WHERE `UID` = '${uid}'");
+
+    if (!$result->status || $result->num === 0) return false;
+
+    return $result->result[0];
+  }
+
+  public function getOnlineBoardData () {
+    $onlineBoard = [];
+
+    $sockets = array_column($this->sockets, 'resource');
+
+    foreach ($sockets as $socket) {
+      if ($socket === $this->master) continue;
+
+      $socketData = $this->sockets[(int)$socket]['data'];
+      $userInfo = $socketData->userInfo;
+
+      $user = new StdClass();
+
+      $user->status   = $socketData->status;
+      $user->UID      = $userInfo['UID'];
+      $user->USERNAME = $userInfo['USERNAME'];
+
+      array_push($onlineBoard, $user);
+    }
+
+    return $onlineBoard;
+  }
+
+  public function getLeaderBoardHistoryData ($status = false) {
     if ($this->leaderBoardData && $status === false) return $this->leaderBoardData;
 
-    $result = query("SELECT * FROM `LEADER_BOARD` ORDER BY `SCORE` DESC LIMIT 50");
+    $result = query("SELECT * FROM `LEADER_BOARD` ORDER BY CAST(`SCORE` as int) DESC LIMIT 50");
 
     if (!$result->status || $result->num === 0) return [];
 
@@ -99,7 +142,7 @@ Class LogicWS extends WebSocket {
         continue;
       }
 
-      $result->result[$index]['name'] = $name->result[0]['USERNAME'];
+      $result->result[$index]['USERNAME'] = $name->result[0]['USERNAME'];
     }
 
     $this->leaderBoardData = $result->result;
