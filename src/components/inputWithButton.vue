@@ -7,7 +7,7 @@
       @input="$emit('input', $event.target.value)"
       @dblclick="$emit('input', '')"
       @keyup.enter="$emit('enter')"/>
-    <div class="button">
+    <div class="button" @click="$emit('enter')">
       <slot name="button-content"></slot>
     </div>
   </div>
