@@ -215,7 +215,7 @@ export default {
     createWebSocketConnection () {
       const { websocketUrl } = baseInfo
 
-      const { onOpen, onMessage } = this
+      const { onOpen, onMessage, $message } = this
 
       return new Promise((resolve, reject) => {
         const ws = new WebSocket(`ws://${websocketUrl}`)
@@ -223,7 +223,7 @@ export default {
         this.ws = ws
 
         ws.onopen = e => {
-          console.info('Websocket connection!')
+          $message('WebSocket connection succeeded!', 'success')
           onOpen()
         }
 
@@ -232,12 +232,12 @@ export default {
         }
 
         ws.onclose = e => {
-          console.info('Websocket connection is closed, reconnecting...')
+          $message('Unexpected disconnection of WebSocket!')
           reject(e)
         }
 
         ws.onerror = e => {
-          console.debug('Websocket connection is error!')
+          $message('Websocket Error!')
           reject(e)
         }
       })
@@ -252,9 +252,7 @@ export default {
       while (true) {
         await createWebSocketConnection().catch(e => {})
         await new Promise((resolve, reject) => {
-          setTimeout(() => {
-            resolve()
-          }, 3000)
+          setTimeout(resolve, 30000)
         })
       }
     },
@@ -302,10 +300,14 @@ export default {
           break
       }
     },
-    dealOnLineMessage ({leaderBoard}) {
+    dealOnLineMessage ({leaderBoardHistory, onlineBoard}) {
+      const { setLeaderBoardHistoryList, setOnlineBoardList } = this
 
+      setLeaderBoardHistoryList(leaderBoardHistory)
+
+      setOnlineBoardList(onlineBoard)
     },
-    ...mapMutations(['setUserBaseInfo'])
+    ...mapMutations(['setUserBaseInfo', 'setLeaderBoardHistoryList', 'setOnlineBoardList'])
   },
   created () {
     const { setUserAccountInfoFromLocalStorage } = this
