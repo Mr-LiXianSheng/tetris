@@ -51,6 +51,8 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from 'vuex'
+
 import onlineChat from './components/onlineChat'
 
 export default {
@@ -60,11 +62,6 @@ export default {
   },
   data () {
     return {
-      // request path
-      path: {
-        // get leader board request path GET
-        leaderBoardPath: '/api/register/aa'
-      },
       // search params
       search: {
         // userName on online board
@@ -95,6 +92,122 @@ export default {
         pageIndex: 1
       }
     }
+  },
+  computed: {
+    ...mapState(['leaderBoardListUpdateTime'])
+  },
+  watch: {
+    leaderBoardListUpdateTime () {
+      const { getLeaderBoardListData } = this
+
+      getLeaderBoardListData()
+    }
+  },
+  methods: {
+    /**
+     * @description           Get leader board data
+     * @return     {Promise}  Async Promise
+     */
+    async getLeaderBoardListData (init = true) {
+      const { initPagination, getLeaderBoardDataReqParams, sendGetLeaderBoardDataReq, dealGetLeaderBoardDataReqRes } = this
+
+      if (init) initPagination()
+
+      const params = getLeaderBoardDataReqParams()
+
+      if (!params.status) return
+
+      const res = await sendGetLeaderBoardDataReq(params.params)
+
+      if (!res.status) return
+
+      dealGetLeaderBoardDataReqRes(res.res)
+    },
+    /**
+     * @description          Get leader board data's request params
+     * @return     {Object}  Request params
+     */
+    getLeaderBoardDataReqParams () {
+      const { search, pagination: { pageSize, pageIndex } } = this
+
+      return {
+        status: true,
+        params: {
+          ...search,
+          pageSize,
+          pageIndex
+        }
+      }
+    },
+    /**
+     * @description           Send get leader board data request
+     * @return     {Promise}  Request Promise
+     */
+    sendGetLeaderBoardDataReq (params) {
+      const { getLeaderBoardData, $notify } = this
+
+      return new Promise(resolve => {
+        const res = getLeaderBoardData()(params)
+
+        if (res.code === 'success') {
+          resolve({
+            status: true,
+            res
+          })
+        } else {
+          $notify('Fail', res.msg, 'error')
+
+          this.leaderBoard = []
+
+          resolve({ status: false })
+        }
+      })
+    },
+    /**
+     * @description            Deal get leader board data req response
+     * @return    {undefined}  no return value
+     */
+    dealGetLeaderBoardDataReqRes (res) {
+      this.leaderBoard = res.data
+
+      const { updatePagination } = this
+
+      updatePagination(res.page)
+    },
+    /**
+     * @description             update pagination data
+     * @return     {undefined}  no return
+     */
+    updatePagination ({ total, pageSize, pageIndex }) {
+      const { pagination } = this
+
+      pagination.total = total
+      pagination.pageSize = pageSize
+      pagination.pageIndex = pageIndex
+    },
+    /**
+     * @description             init pagination
+     * @return     {undefined}  no return
+     */
+    initPagination () {
+      const { pagination } = this
+
+      pagination.pageIndex = 1
+    },
+    /**
+     * @description           turn to page index
+     * @return     {Promise}  Async Promise
+     */
+    turnPage (index) {
+      const { pagination } = this
+
+      pagination.pageIndex = index
+
+      const { getLeaderBoardData } = this
+
+      return getLeaderBoardData(false)
+    },
+    ...mapGetters(['getLeaderBoardData'])
   }
 }
 </script>
