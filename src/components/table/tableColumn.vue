@@ -6,7 +6,7 @@
       <div class="content"
         v-for="(row, index) in tableData"
         :key="row + index">
-        {{ prop === 'index' ? index : row[prop] }}
+        {{ prop === 'index' ? index + 1 : row[prop] }}
         <slot :row="row"></slot>
       </div>
     </div>
@@ -22,8 +22,22 @@ export default {
       tableData: []
     }
   },
+  watch: {
+    '$parent.tableData' () {
+      const { initTableData } = this
+
+      initTableData()
+    }
+  },
+  methods: {
+    initTableData () {
+      this.tableData = this.$parent.tableData
+    }
+  },
   created () {
-    this.tableData = this.$parent.tableData
+    const { initTableData } = this
+
+    initTableData()
   }
 }
 </script>
