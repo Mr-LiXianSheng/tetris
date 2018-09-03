@@ -8,12 +8,18 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     // interactive token, get it by login response
-    userBaseInfo: {}
+    userBaseInfo: {},
+    // leaderBoardHistoryList data
+    leaderBoardHistoryList: []
   },
   mutations: {
     // set user base info, get it by login response
     setUserBaseInfo (state, token) {
       state.userBaseInfo = token
+    },
+    // set leader board list data
+    setLeaderBoardHistoryList (state, list) {
+      state.leaderBoardList = list
     }
   },
   actions: {
