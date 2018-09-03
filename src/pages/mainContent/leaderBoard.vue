@@ -3,14 +3,14 @@
     <div class="top-title">Leader Board</div>
 
     <!-- search input -->
-    <input-with-button class="search-input" placeholder="Please input userName" v-model="search.userName" @enter="getLeaderBoardData">
+    <input-with-button class="search-input" placeholder="Please input userName" v-model="search.userName" @enter="getLeaderBoardListData">
       <template slot="button-content">
         <i class="el-icon-search" />
       </template>
     </input-with-button>
 
     <!-- nav bar -->
-    <row-nav-bar v-model="search.leaderBoard" @change="getLeaderBoardData" class="leader-board-choose" :rowNavBar="rowNavBar" />
+    <row-nav-bar v-model="search.leaderBoard" @change="getLeaderBoardListData" class="leader-board-choose" :rowNavBar="rowNavBar" />
 
     <!-- leader board table -->
     <table-with-slot
@@ -25,13 +25,13 @@
 
       <!-- userName -->
       <table-column
-        prop="userName"
+        prop="USERNAME"
         label="UserName">
       </table-column>
 
       <!-- score -->
       <table-column
-        prop="score"
+        prop="SCORE"
         label="Score">
       </table-column>
 
@@ -48,16 +48,12 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from 'vuex'
 
 export default {
   name: 'leader-board',
   data () {
     return {
-      // request path
-      path: {
-        // get leader board request path GET
-        leaderBoardPath: '/api/register/aa'
-      },
       // search params
       search: {
         // userName on leader board
@@ -93,13 +89,25 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapState(['leaderBoardListUpdateTime'])
+  },
+  watch: {
+    leaderBoardListUpdateTime () {
+      const { getLeaderBoardListData } = this
+
+      getLeaderBoardListData()
+    }
+  },
   methods: {
     /**
      * @description           Get leader board data
      * @return     {Promise}  Async Promise
      */
-    async getLeaderBoardData () {
-      const { getLeaderBoardDataReqParams, sendGetLeaderBoardDataReq, dealGetLeaderBoardDataReqRes } = this
+    async getLeaderBoardListData (init = true) {
+      const { initPagination, getLeaderBoardDataReqParams, sendGetLeaderBoardDataReq, dealGetLeaderBoardDataReqRes } = this
+
+      if (init) initPagination()
 
       const params = getLeaderBoardDataReqParams()
 
@@ -107,9 +115,9 @@ export default {
 
       const res = await sendGetLeaderBoardDataReq(params.params)
 
-      if (!res.status) return false
+      if (!res.status) return
 
-      return dealGetLeaderBoardDataReqRes(res.res)
+      dealGetLeaderBoardDataReqRes(res.res)
     },
     /**
      * @description          Get leader board data's request params
@@ -132,9 +140,24 @@ export default {
      * @return     {Promise}  Request Promise
      */
     sendGetLeaderBoardDataReq (params) {
-      const { $http: { get }, path: { leaderBoardPath } } = this
+      const { getLeaderBoardData, $notify } = this
 
-      return get(leaderBoardPath, params)
+      return new Promise(resolve => {
+        const res = getLeaderBoardData()(params)
+
+        if (res.code === 'success') {
+          resolve({
+            status: true,
+            res
+          })
+        } else {
+          $notify('Fail', res.msg, 'error')
+
+          this.leaderBoard = []
+
+          resolve({ status: false })
+        }
+      })
     },
     /**
      * @description            Deal get leader board data req response
@@ -145,7 +168,7 @@ export default {
 
       const { updatePagination } = this
 
-      updatePagination(res.data)
+      updatePagination(res.page)
     },
     /**
      * @description             update pagination data
@@ -159,6 +182,15 @@ export default {
       pagination.pageIndex = pageIndex
     },
     /**
+     * @description             init pagination
+     * @return     {undefined}  no return
+     */
+    initPagination () {
+      const { pagination } = this
+
+      pagination.pageIndex = 1
+    },
+    /**
      * @description           turn to page index
      * @return     {Promise}  Async Promise
      */
@@ -167,10 +199,11 @@ export default {
 
       pagination.pageIndex = index
 
-      const { getLeaderBoardData } = this
+      const { getLeaderBoardListData } = this
 
-      return getLeaderBoardData()
-    }
+      return getLeaderBoardListData(false)
+    },
+    ...mapGetters(['getLeaderBoardData'])
   },
   created () {
   }
