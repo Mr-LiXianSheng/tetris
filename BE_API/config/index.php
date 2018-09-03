@@ -28,7 +28,11 @@ const DEV_DBA_USER = 'root';
 
 const OLE_DBA_USER = 'tetris';
 
-const DEV_DBA_PASS = 'jiaming';
+// PC
+// const DEV_DBA_PASS = 'jiaming';
+
+// MAC
+const DEV_DBA_PASS = 'jiaming1';
 
 const DEV_OLE_PASS = 'jiamingTetris';
 
