@@ -9,19 +9,91 @@ export default new Vuex.Store({
   state: {
     // interactive token, get it by login response
     userBaseInfo: {},
+    // leaderBoardList Data update time stamp
+    leaderBoardListUpdateTime: '',
     // leaderBoardHistoryList data
-    leaderBoardHistoryList: []
+    leaderBoardHistoryList: [],
+    // leaderBoardMonthList data
+    leaderBoardMonthList: [],
+    // leaderBoardWeekList data
+    leaderBoardWeekList: [],
+    // onlineBoardList data
+    onlineBoardList: []
   },
   mutations: {
     // set user base info, get it by login response
     setUserBaseInfo (state, token) {
       state.userBaseInfo = token
     },
-    // set leader board list data
+    // set leader board history list data
     setLeaderBoardHistoryList (state, list) {
-      state.leaderBoardList = list
+      state.leaderBoardHistoryList = list
+
+      state.leaderBoardListUpdateTime = (new Date()).getTime()
+    },
+    // set leader board month list data
+    setLeaderBoardMonthList (state, list) {
+      state.leaderBoardMonthList = list
+
+      state.leaderBoardListUpdateTime = (new Date()).getTime()
+    },
+    // set leader board week list data
+    setLeaderBoardWeekList (state, list) {
+      state.leaderBoardWeekList = list
+
+      state.leaderBoardListUpdateTime = (new Date()).getTime()
+    },
+    // set online board list data
+    setOnlineBoardList (state, list) {
+      state.onlineBoardList = list
     }
   },
   actions: {
+  },
+  getters: {
+    // get leader board data
+    getLeaderBoardData (state) {
+      return params => {
+        const { userName, leaderBoard, pageSize, pageIndex } = params
+
+        const response = {
+          code: 'error',
+          msg: 'Abnormal Data!',
+          data: [],
+          page: {
+            total: 0,
+            pageSize,
+            pageIndex,
+            pageCount: 0
+          }
+        }
+
+        if (!leaderBoard) return response
+
+        let tempLeaderBoard = []
+
+        if (leaderBoard === 'history') {
+          tempLeaderBoard = state.leaderBoardHistoryList
+        } else if (leaderBoard === 'month') {
+          return response
+        } else if (leaderBoard === 'week') {
+          return response
+        }
+
+        tempLeaderBoard = tempLeaderBoard.filter(({USERNAME: tempUserName}) => {
+          if (!userName) return true
+
+          return tempUserName.indexOf(userName) !== -1
+        })
+
+        response.code = 'success'
+        response.msg = 'success!'
+        response.data = tempLeaderBoard.slice(pageSize * (pageIndex - 1), pageSize * pageIndex)
+        response.page.total = tempLeaderBoard.length
+        response.page.pageCount = Math.ceil(tempLeaderBoard.length / pageSize)
+
+        return response
+      }
+    }
   }
 })
