@@ -1,5 +1,16 @@
 // development status
-export const devMode = false
+export const devMode = true
+
+// export const devDevice = 'PC'
+export const devDevice = 'MAC'
+
+const oleWebsocketUrl = 'localhost:5921'
+
+const pcDevWebsocketUrl = '192.168.10.150:5921'
+
+const macDevWebsocketUrl = 'localhost:5922'
+
+const websocketUrl = (devMode ? (devDevice === 'PC' ? pcDevWebsocketUrl : macDevWebsocketUrl) : oleWebsocketUrl)
 
 // multiplayer tetris game base infomation
 export const baseInfo = {
@@ -9,5 +20,5 @@ export const baseInfo = {
 
   developer: 'JiaMing',
 
-  websocketUrl: '192.168.10.150:5921'
+  websocketUrl
 }
