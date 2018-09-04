@@ -18,7 +18,9 @@ export default new Vuex.Store({
     // leaderBoardWeekList data
     leaderBoardWeekList: [],
     // onlineBoardList data
-    onlineBoardList: []
+    onlineBoardList: [],
+    // chat message data
+    chatMessage: []
   },
   mutations: {
     // set user base info, get it by login response
@@ -46,6 +48,10 @@ export default new Vuex.Store({
     // set online board list data
     setOnlineBoardList (state, list) {
       state.onlineBoardList = list
+    },
+    // push new message
+    pushCharMessage (state, message) {
+      state.chatMessage.push(message)
     }
   },
   actions: {
@@ -91,6 +97,40 @@ export default new Vuex.Store({
         response.data = tempLeaderBoard.slice(pageSize * (pageIndex - 1), pageSize * pageIndex)
         response.page.total = tempLeaderBoard.length
         response.page.pageCount = Math.ceil(tempLeaderBoard.length / pageSize)
+
+        return response
+      }
+    },
+    // get online board data
+    getOnlineBoardData (state) {
+      return params => {
+        const { userName, pageSize, pageIndex } = params
+
+        const response = {
+          code: 'error',
+          msg: 'Abnormal Data!',
+          data: [],
+          page: {
+            total: 0,
+            pageSize,
+            pageIndex,
+            pageCount: 0
+          }
+        }
+
+        let tempOnlineBoard = state.onlineBoardList
+
+        tempOnlineBoard = tempOnlineBoard.filter(({USERNAME: tempUserName}) => {
+          if (!userName) return true
+
+          return tempUserName.indexOf(userName) !== -1
+        })
+
+        response.code = 'success'
+        response.msg = 'success!'
+        response.data = tempOnlineBoard.slice(pageSize * (pageIndex - 1), pageSize * pageIndex)
+        response.page.total = tempOnlineBoard.length
+        response.page.pageCount = Math.ceil(tempOnlineBoard.length / pageSize)
 
         return response
       }
