@@ -44,13 +44,18 @@ Class LogicWS extends WebSocket {
     $this->msg->type = $messageType = $socket['message']['type'];
 
     switch ($messageType) {
-      case 'online': $this->dealOnline($socket);
-        exit;
+      case 'connect': $this->dealConnect($socket);
+        break;
+      
+      case 'chat'   : $this->dealChat($socket);
+        break;
+
+      case 'heart' : ;
         break;
     }
   }
 
-  public function dealOnline ($socket) {
+  public function dealConnect ($socket) {
     $message = $socket['message'];
     $uid   = $message['uid'];
     $token = $message['token'];
@@ -70,13 +75,23 @@ Class LogicWS extends WebSocket {
     $socket['data']->userInfo = $userInfo;
     $socket['data']->status = 'online';
 
-    $this->msg->data->userName = $userInfo['USERNAME'];
-    $this->msg->data->userNum  = count($this->sockets) - 1;
+    $userNum = count($this->sockets) - 1;
+
+    $this->msg->data->userNum  = $userNum;
     $this->msg->data->onlineBoard = $this->getOnlineBoardData();
     $this->msg->data->leaderBoardHistory = $this->getLeaderBoardHistoryData();
 
-    $this->sendMessage($this->msg, array_column($this->sockets, 'resource'));
-    $this->getUserTokenByUid($userInfo['UID']);
+    $this->sendMessage($this->msg, $socket['resource']);
+
+    $allOthers = $this->sockets;
+    unset($allOthers[(int)$socket['resource']]);
+
+    $this->msg->type = 'connect';
+    $this->data = new StdCLass();
+    $this->data->USERNAME = $userInfo['USERNAME'];
+    $this->data->userNum = $userNum;
+
+    $this->sendMessage($this->msg, array_column($allOthers, 'resource'));
   }
 
   public function getUserTokenByUid ($uid = false) {
@@ -148,6 +163,18 @@ Class LogicWS extends WebSocket {
     $this->leaderBoardData = $result->result;
 
     return $result->result;
+  }
+
+  public function dealChat ($socket) {
+    $message = $socket['message'];
+
+    unset($message['type']);
+
+    $message['time'] = date('Y-m-d H:i:s');
+
+    $this->msg->data = $message;
+
+    $this->sendMessage($this->msg, array_column($this->sockets, 'resource'));
   }
 }
 ?>
