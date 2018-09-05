@@ -310,8 +310,11 @@ export default {
 
       .title, .content {
         color: @deep-color;
-        border-top: 1px solid fade(@deep-color, 50);
         border-bottom: 1px solid fade(@deep-color, 50);
+      }
+
+      .title {
+        border-top: 1px solid fade(@deep-color, 50);
       }
     }
 
