@@ -267,13 +267,16 @@ class WebSocket {
      * @return Array
      */
     public function disconnect($socket, $send = true) {
-        $this->sockets[(int)$socket]['activeType'] = 'offline';
-        $this->sockets[(int)$socket]['activeTime'] = time('Y-m-d H:i:s');
-        $this->sockets[(int)$socket]['message'] = 'offline';
+        print_r($socket);
+        $disConnectSocket = $this->sockets[(int)$socket];
 
-        if ($send) $this->onMessage($this->sockets[(int)$socket], $this->sockets);
+        $disConnectSocket['activeType'] = 'offline';
+        $disConnectSocket['activeTime'] = time('Y-m-d H:i:s');
+        $disConnectSocket['message'] = 'offline';
 
         unset($this->sockets[(int)$socket]);
+
+        if ($send) $this->onMessage($disConnectSocket);
     }
 
     /**
