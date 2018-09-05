@@ -60,7 +60,6 @@ export default {
     box-sizing: border-box;
     border-top: 1px solid fade(@main-color, 50);
     border-bottom: 1px solid fade(@main-color, 50);
-    margin-bottom: 10px;
   }
 
   .content-container {
