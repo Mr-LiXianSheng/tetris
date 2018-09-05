@@ -28,16 +28,15 @@ Class LogicWS extends WebSocket {
   }
 
   public function offLine ($socket) {
-    $msg = new StdClass();
+    $userInfo = $socket['data']->userInfo;
 
-    $msg->status = true;
-    $msg->type   = 'offline';
-    $msg->data   = new StdClass();
+    $allOthers = $this->sockets;
 
-    $msg->data->onlineNum = count($this->sockets) - 1;
-    $msg->date->userName = $socket['data']->userName;
+    $this->msg->type = 'offline';
+    $this->msg->data->USERNAME = $userInfo['USERNAME'];
+    $this->msg->data->onlineBoard = $this->getOnlineBoardData();
 
-    $this->sendMessage($msg, array_column($this->sockets, 'resource'));
+    $this->sendMessage($this->msg, array_column($allOthers, 'resource'));
   }
 
   public function dealUserMessage ($socket) {
@@ -75,21 +74,18 @@ Class LogicWS extends WebSocket {
     $socket['data']->userInfo = $userInfo;
     $socket['data']->status = 'online';
 
-    $userNum = count($this->sockets) - 1;
-
-    $this->msg->data->userNum  = $userNum;
     $this->msg->data->onlineBoard = $this->getOnlineBoardData();
     $this->msg->data->leaderBoardHistory = $this->getLeaderBoardHistoryData();
 
-    $this->sendMessage($this->msg, $socket['resource']);
+    $this->sendMessage($this->msg, [$socket['resource']]);
 
     $allOthers = $this->sockets;
     unset($allOthers[(int)$socket['resource']]);
 
-    $this->msg->type = 'connect';
-    $this->data = new StdCLass();
-    $this->data->USERNAME = $userInfo['USERNAME'];
-    $this->data->userNum = $userNum;
+    $this->msg->type = 'online';
+    $this->msg->data = new StdCLass();
+    $this->msg->data->USERNAME = $userInfo['USERNAME'];
+    $this->msg->data->onlineBoard = $this->getOnlineBoardData();
 
     $this->sendMessage($this->msg, array_column($allOthers, 'resource'));
   }
