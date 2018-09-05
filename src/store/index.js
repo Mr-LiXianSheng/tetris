@@ -8,7 +8,9 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     // interactive token, get it by login response
-    userBaseInfo: {},
+    userBaseInfo: null,
+    // websocket Instance
+    websocket: null,
     // leaderBoardList Data update time stamp
     leaderBoardListUpdateTime: '',
     // leaderBoardHistoryList data
@@ -26,6 +28,16 @@ export default new Vuex.Store({
     // set user base info, get it by login response
     setUserBaseInfo (state, token) {
       state.userBaseInfo = token
+    },
+    // set websocket snstance
+    setWebSocketInstance (state, ws) {
+      state.websocket = ws
+    },
+    // send Websocket message
+    sendWSMessage (state, message) {
+      const { websocket } = state
+
+      if (websocket) websocket.send(JSON.stringify(message))
     },
     // set leader board history list data
     setLeaderBoardHistoryList (state, list) {
