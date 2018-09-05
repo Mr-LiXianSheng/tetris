@@ -282,7 +282,6 @@ export default {
   }
 
   .online-interactive-choose {
-    margin-bottom: 10px;
     box-shadow: 0 0 3px @deep-color;
     color: @deep-color;
 
@@ -304,6 +303,7 @@ export default {
   }
 
   .online-user-table {
+    margin-top: 10px;
     margin-bottom: 10px;
 
     .table-column {
