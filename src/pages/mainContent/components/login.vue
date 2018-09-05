@@ -213,7 +213,7 @@ export default {
     createWebSocketConnection () {
       const { websocketUrl } = baseInfo
 
-      const { setWebSocketInstance, keepWSHeartLooper, onOpen, onMessage, $message } = this
+      const { setWebSocketInstance, onOpen, onMessage, $message } = this
 
       return new Promise((resolve, reject) => {
         const ws = new WebSocket(`ws://${websocketUrl}`)
@@ -222,7 +222,6 @@ export default {
 
         ws.onopen = e => {
           $message('WebSocket connection succeeded!', 'success')
-          keepWSHeartLooper()
           onOpen()
         }
 
@@ -293,13 +292,19 @@ export default {
 
       if (!status) return
 
-      const { dealOnLineMessage, dealChatMessage } = this
+      const { dealConnectMessage, dealOnline, dealChatMessage, dealOffline } = this
 
       switch (type) {
-        case 'online': dealOnLineMessage(data)
+        case 'connect': dealConnectMessage(data)
+          break
+
+        case 'online': dealOnline(data)
           break
 
         case 'chat': dealChatMessage(data)
+          break
+
+        case 'offline': dealOffline(data)
           break
 
         default:
@@ -307,15 +312,32 @@ export default {
       }
     },
     /**
-     * @description             deal user online message
+     * @description             deal user connect init message
      * @return     {undefined}  no return
      */
-    dealOnLineMessage ({leaderBoardHistory, onlineBoard}) {
-      const { setLeaderBoardHistoryList, setOnlineBoardList } = this
+    dealConnectMessage ({leaderBoardHistory, onlineBoard}) {
+      const { setLeaderBoardHistoryList, setOnlineBoardList, keepWSHeartLooper } = this
 
       setLeaderBoardHistoryList(leaderBoardHistory)
 
       setOnlineBoardList(onlineBoard)
+
+      keepWSHeartLooper()
+    },
+    /**
+     * @description             deal other user online message
+     * @return     {undefined}  no return
+     */
+    dealOnline ({onlineBoard, USERNAME}) {
+      const { setOnlineBoardList, pushCharMessage } = this
+
+      setOnlineBoardList(onlineBoard)
+
+      pushCharMessage({
+        type: 'online',
+        text: `${USERNAME} is online`,
+        unique: (new Date()).getTime()
+      })
     },
     /**
      * @description             deal user chat message
@@ -331,6 +353,21 @@ export default {
         USERNAME,
         text,
         time,
+        unique: (new Date()).getTime()
+      })
+    },
+    /**
+     * @description             deal other user offline message
+     * @return     {undefined}  no return
+     */
+    dealOffline ({onlineBoard, USERNAME}) {
+      const { setOnlineBoardList, pushCharMessage } = this
+
+      setOnlineBoardList(onlineBoard)
+
+      pushCharMessage({
+        type: 'offline',
+        text: `${USERNAME} is offline`,
         unique: (new Date()).getTime()
       })
     },
