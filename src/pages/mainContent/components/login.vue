@@ -35,13 +35,11 @@ export default {
       // weather remember user's password
       remember: false,
       // temp user account info
-      tempUserAccountInfo: {},
-      // ws
-      ws: {}
+      tempUserAccountInfo: {}
     }
   },
   computed: {
-    ...mapState(['userBaseInfo'])
+    ...mapState(['userBaseInfo', 'websocket'])
   },
   methods: {
     /**
@@ -215,15 +213,16 @@ export default {
     createWebSocketConnection () {
       const { websocketUrl } = baseInfo
 
-      const { onOpen, onMessage, $message } = this
+      const { setWebSocketInstance, keepWSHeartLooper, onOpen, onMessage, $message } = this
 
       return new Promise((resolve, reject) => {
         const ws = new WebSocket(`ws://${websocketUrl}`)
 
-        this.ws = ws
+        setWebSocketInstance(ws)
 
         ws.onopen = e => {
           $message('WebSocket connection succeeded!', 'success')
+          keepWSHeartLooper()
           onOpen()
         }
 
@@ -233,11 +232,13 @@ export default {
 
         ws.onclose = e => {
           $message('Unexpected disconnection of WebSocket!')
+          setWebSocketInstance(null)
           reject(e)
         }
 
         ws.onerror = e => {
           $message('Websocket Error!')
+          setWebSocketInstance(null)
           reject(e)
         }
       })
@@ -247,38 +248,40 @@ export default {
      * @return     {undefined}  no return
      */
     async createWebSocketConnectionLooper () {
-      const { createWebSocketConnection } = this
+      const { userBaseInfo, createWebSocketConnection } = this
 
       while (true) {
-        await createWebSocketConnection().catch(e => {})
-        await new Promise((resolve, reject) => {
-          setTimeout(resolve, 30000)
-        })
+        if (!userBaseInfo) return
+
+        await createWebSocketConnection().catch(e => e)
+        await new Promise(resolve => setTimeout(resolve, 30000))
       }
     },
     /**
-     * @description             send message by websocket
+     * @description             keep websocket heart
      * @return     {undefined}  no return
      */
-    sendMessage (msg) {
-      const { ws } = this
+    keepWSHeartLooper () {
+      const { websocket, sendWSMessage } = this
 
-      ws.send(JSON.stringify(msg))
+      if (websocket) sendWSMessage({type: 'heart'})
+
+      setTimeout(this.keepWSHeartLooper, 30000)
     },
     /**
      * @description             websocket on open
      * @return     {undefined}  no return
      */
     onOpen () {
-      const { sendMessage, userBaseInfo: { TOKEN, UID } } = this
+      const { sendWSMessage, userBaseInfo: { TOKEN, UID } } = this
 
       const message = {
-        type: 'online',
+        type: 'connect',
         token: TOKEN,
         uid: UID
       }
 
-      sendMessage(message)
+      sendWSMessage(message)
     },
     /**
      * @description             websocket on message
@@ -290,16 +293,23 @@ export default {
 
       if (!status) return
 
-      const { dealOnLineMessage } = this
+      const { dealOnLineMessage, dealChatMessage } = this
 
       switch (type) {
         case 'online': dealOnLineMessage(data)
+          break
+
+        case 'chat': dealChatMessage(data)
           break
 
         default:
           break
       }
     },
+    /**
+     * @description             deal user online message
+     * @return     {undefined}  no return
+     */
     dealOnLineMessage ({leaderBoardHistory, onlineBoard}) {
       const { setLeaderBoardHistoryList, setOnlineBoardList } = this
 
@@ -307,7 +317,24 @@ export default {
 
       setOnlineBoardList(onlineBoard)
     },
-    ...mapMutations(['setUserBaseInfo', 'setLeaderBoardHistoryList', 'setOnlineBoardList'])
+    /**
+     * @description             deal user chat message
+     * @return     {undefined}  no return
+     */
+    dealChatMessage ({UID, USERNAME, text, time}) {
+      const { userBaseInfo: { UID: SELFUID } } = this
+
+      const { pushCharMessage } = this
+
+      pushCharMessage({
+        type: UID === SELFUID ? 'self' : 'other',
+        USERNAME,
+        text,
+        time,
+        unique: (new Date()).getTime()
+      })
+    },
+    ...mapMutations(['setUserBaseInfo', 'setWebSocketInstance', 'sendWSMessage', 'setLeaderBoardHistoryList', 'setOnlineBoardList', 'pushCharMessage'])
   },
   created () {
     const { setUserAccountInfoFromLocalStorage } = this
