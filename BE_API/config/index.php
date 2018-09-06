@@ -18,7 +18,7 @@ const ENV = 'dev';
 // const ENV = 'ole';
 
 // const DEVICE = 'PC';
-const DEVICE = 'MAC';
+const DEVICE = 'PC';
 
 
 const DEV_INDEX_URL = 'http://localhost:5678';

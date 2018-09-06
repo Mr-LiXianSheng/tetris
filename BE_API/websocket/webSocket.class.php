@@ -267,7 +267,6 @@ class WebSocket {
      * @return Array
      */
     public function disconnect($socket, $send = true) {
-        print_r($socket);
         $disConnectSocket = $this->sockets[(int)$socket];
 
         $disConnectSocket['activeType'] = 'offline';
