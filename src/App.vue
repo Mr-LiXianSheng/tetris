@@ -2,6 +2,7 @@
   <div id="app">
     <canvas-b-g />
     <router-view/>
+    <confirm />
   </div>
 </template>
 
