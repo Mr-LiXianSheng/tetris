@@ -4,7 +4,7 @@
     <div class="top-title">online-board</div>
 
     <!-- search input -->
-    <input-with-button class="search-input" placeholder="Please input userName" v-model="search.userName">
+    <input-with-button class="search-input" placeholder="Please input userName" v-model="search.userName" @enter="getOnlineBoardListData">
       <template slot="button-content">
         <i class="el-icon-search" />
       </template>
