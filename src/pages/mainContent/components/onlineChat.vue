@@ -1,6 +1,6 @@
 <template>
   <div id="online-chat">
-    <div class="content">
+    <div class="content" ref="chat-container">
 
       <template v-for="message in chatMessage">
         <div class="online" v-if="message.type === 'online'" :key="message.unique">
@@ -36,9 +36,10 @@
     <div class="inputer">
       <textarea class="textarea"
         v-model="userInput"
-        placeholder="Please input message"
+        :placeholder="websocket ? 'Please input message' : 'You need login'"
         :disabled="!websocket"
-        @keydown.enter="sendChatMessage"/>
+        @keydown.enter="sendChatMessage"
+        @dblclick="userInput = ''"/>
       <div class="footer">
         Click / Enter To Send
         <div class="send-btn" @click="sendChatMessage">Send</div>
@@ -61,6 +62,13 @@ export default {
   computed: {
     ...mapState(['chatMessage', 'websocket', 'userBaseInfo'])
   },
+  watch: {
+    chatMessage () {
+      const { turnToBottom } = this
+
+      turnToBottom()
+    }
+  },
   methods: {
     sendChatMessage () {
       const { userInput, $nextTick, userBaseInfo: { UID, USERNAME } } = this
@@ -82,7 +90,25 @@ export default {
         this.userInput = ''
       })
     },
+    /**
+     * @description             turn to chat container bottom
+     * @return     {undefined}  no return
+     */
+    turnToBottom () {
+      const { $refs } = this
+
+      const chatContainer = $refs['chat-container']
+
+      this.$nextTick(e => {
+        chatContainer.scrollTop = chatContainer.scrollHeight - chatContainer.clientHeight
+      })
+    },
     ...mapMutations(['sendWSMessage'])
+  },
+  mounted () {
+    const { turnToBottom } = this
+
+    turnToBottom()
   }
 }
 </script>
