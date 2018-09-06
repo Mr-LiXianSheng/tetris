@@ -1,8 +1,8 @@
 // development status
 export const devMode = true
 
-// export const devDevice = 'PC'
-export const devDevice = 'MAC'
+export const devDevice = 'PC'
+// export const devDevice = 'MAC'
 
 const oleWebsocketUrl = 'localhost:5921'
 
